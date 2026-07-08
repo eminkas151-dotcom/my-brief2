@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>My Brief Beta</title>
+<style>
+body{margin:0;font-family:Arial,sans-serif;background:#0b1220;color:#fff}
+.wrap{max-width:800px;margin:auto;padding:20px}
+.card{background:#162033;border-radius:16px;padding:16px;margin:12px 0}
+button{padding:10px 14px;border:none;border-radius:10px;background:#60a5fa;font-weight:bold}
+.hidden{display:none}
+</style>
+</head>
+<body>
+<div class="wrap">
+<h1>📰 My Brief Beta</h1>
+<p>Тестовый выпуск · 8 июля 2026</p>
+
+<div class="card">
+<h2>📊 Индекс насыщенности дня</h2>
+<p><b>🟠 Насыщенный день</b> · Полное чтение ~15 минут</p>
+</div>
+
+<p>
+<button onclick="show('one')">1 минута</button>
+<button onclick="show('five')">5 минут</button>
+<button onclick="show('full')">Полный</button>
+</p>
+
+<div id="one" class="card">
+<h2>⭐ Главное за минуту</h2>
+<ul>
+<li>Азербайджан: миграция и дипломатия.</li>
+<li>Россия/Украина: продолжаются взаимные удары.</li>
+<li>Экономика: ограничения с топливом в отдельных регионах.</li>
+</ul>
+</div>
+
+<div id="five" class="card hidden">
+<h2>🇦🇿 Азербайджан</h2>
+<p>Высокий приоритет. В выпуске — внутренняя политика, экономика, дипломатия и аналитика.</p>
+<h2>🇷🇺 Россия</h2>
+<p>Главные события дня без информационного шума.</p>
+<h2>🌍 Мир</h2>
+<p>Только события, имеющие международное значение.</p>
+</div>
+
+<div id="full" class="card hidden">
+<h2>Полный режим</h2>
+<p>В будущей версии здесь автоматически будут появляться утренние и вечерние AI-дайджесты, архив и поиск.</p>
+</div>
+
+<div class="card">
+<h2>🚀 Статус проекта</h2>
+<p>Это первый рабочий HTML-прототип My Brief.</p>
+</div>
+
+</div>
+<script>
+function show(id){
+ ['one','five','full'].forEach(x=>document.getElementById(x).classList.add('hidden'));
+ document.getElementById(id).classList.remove('hidden');
+}
+</script>
+</body>
+</html>
