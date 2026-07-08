@@ -1,88 +1,9 @@
-<!DOCTYPE html>
-<html lang="ru">
-<head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
-<title>My Brief v0.4</title>
-<link rel="manifest" href="manifest.json">
-<meta name="theme-color" content="#0f172a">
-<link rel="icon" href="icon.svg">
+<!doctype html><html><head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>My Brief v0.4.1</title>
 <link rel="stylesheet" href="styles.css">
-</head>
-<body>
-<div class="app">
-<header class="hero">
-  <div>
-    <div class="brand">MY BRIEF · v0.4</div>
-    <h1 id="greeting">Доброе утро</h1>
-    <p class="muted" id="issueLine">Загрузка выпуска...</p>
-  </div>
-  <button onclick="testNotify()">🔔</button>
-</header>
-
-<section class="card highlight">
-  <div class="row">
-    <div>
-      <h2>📊 Индекс насыщенности дня</h2>
-      <p><b id="dayIndex">Загрузка...</b></p>
-      <p class="muted" id="daySummary"></p>
-    </div>
-    <span class="pill" id="importantCount">Beta</span>
-  </div>
-</section>
-
-<section class="card">
-  <h2>⚡ Режим чтения</h2>
-  <div class="tabs">
-    <button class="tab active" onclick="setMode('minute',this)">1 минута</button>
-    <button class="tab" onclick="setMode('short',this)">5 минут</button>
-    <button class="tab" onclick="setMode('full',this)">Полный</button>
-  </div>
-</section>
-
-<section class="card">
-  <h2>🥇 Главные события дня</h2>
-  <div id="topStories"></div>
-</section>
-
-<section class="card">
-  <h2>🧭 Разделы</h2>
-  <div class="quick">
-    <a href="#az">🇦🇿 Азербайджан</a>
-    <a href="#ru">🇷🇺 Россия</a>
-    <a href="#world">🌍 Мир</a>
-    <a href="#economy">💰 Экономика</a>
-    <a href="#incidents">🚨 Происшествия</a>
-    <a href="#sport">⚽ Спорт</a>
-  </div>
-</section>
-
-<main id="content"></main>
-
-<section class="card">
-  <h2>📈 Что изменилось со вчера</h2>
-  <div id="changes"></div>
-</section>
-
-<section class="card" id="next">
-  <h2>📅 Что ждать завтра</h2>
-  <div id="tomorrow"></div>
-</section>
-
-<section class="card">
-  <h2>🚀 Что нового в v0.4</h2>
-  <p>Теперь выпуск загружается из отдельного файла <b>data/briefing.json</b>. Это первый шаг к будущему автоматическому обновлению новостей без изменения интерфейса.</p>
-</section>
-</div>
-
-<nav class="bottom">
-  <a href="#topStories">⭐<span>Главное</span></a>
-  <a href="#az">🇦🇿<span>Азерб.</span></a>
-  <a href="#ru">🇷🇺<span>Россия</span></a>
-  <a href="#economy">💰<span>Экон.</span></a>
-  <a href="#next">📅<span>Завтра</span></a>
-</nav>
-
+<link rel="manifest" href="manifest.json">
+</head><body>
+<div class='card'><h1>My Brief v0.4.1</h1><div id='out'>Loading...</div></div>
 <script src="app.js"></script>
-</body>
-</html>
+</body></html>
