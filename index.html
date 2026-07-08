@@ -3,71 +3,31 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
-<title>My Brief v0.3</title>
+<title>My Brief v0.4</title>
 <link rel="manifest" href="manifest.json">
 <meta name="theme-color" content="#0f172a">
 <link rel="icon" href="icon.svg">
-<style>
-:root{
-  --bg:#07111f;--card:#111827;--card2:#162033;--text:#f8fafc;--muted:#a8b3c7;
-  --line:#273244;--blue:#60a5fa;--red:#fb7185;--yellow:#fbbf24;--green:#34d399;
-}
-*{box-sizing:border-box}
-html{scroll-behavior:smooth}
-body{margin:0;background:radial-gradient(circle at top,#1e3a8a,#07111f 45%);color:var(--text);
-font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;line-height:1.45}
-.app{max-width:820px;margin:auto;padding:18px 14px 92px}
-.hero{display:flex;justify-content:space-between;gap:12px;align-items:flex-start;padding:14px 4px}
-.brand{font-size:12px;letter-spacing:.08em;color:var(--blue);font-weight:800}
-h1{font-size:34px;margin:6px 0 6px;line-height:1.05}
-h2{font-size:20px;margin:0 0 12px}
-p{margin:0 0 8px}.muted{color:var(--muted);font-size:14px}
-.card{background:rgba(17,24,39,.94);border:1px solid var(--line);border-radius:24px;padding:16px;margin:12px 0;box-shadow:0 14px 30px rgba(0,0,0,.2)}
-.highlight{background:linear-gradient(135deg,rgba(96,165,250,.2),rgba(17,24,39,.94))}
-.row{display:flex;justify-content:space-between;gap:10px;align-items:center}
-.pill{font-size:12px;border:1px solid var(--line);background:#0f172a;color:var(--muted);border-radius:999px;padding:6px 10px;white-space:nowrap}
-button{border:1px solid var(--line);background:var(--card2);color:var(--text);border-radius:15px;padding:11px 13px;font-weight:800}
-.tabs{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}.tab.active{background:var(--blue);color:#06101d;border-color:transparent}
-.quick{display:grid;grid-template-columns:1fr 1fr;gap:9px}.quick a{text-decoration:none;color:var(--text);background:#0f172a;border:1px solid var(--line);border-radius:16px;padding:12px;font-weight:700}
-.news{border-top:1px solid var(--line);padding-top:14px;margin-top:14px}.news:first-of-type{border-top:0;padding-top:0}
-.newsTitle{font-weight:850;margin-bottom:6px;font-size:16px}.newsText{color:#dbe4f0}.meta{color:var(--muted);font-size:13px;margin-top:8px}
-.installBox{display:none}.installBox.show{display:block}
-.bottom{position:fixed;left:0;right:0;bottom:0;display:grid;grid-template-columns:repeat(5,1fr);
-background:rgba(7,17,31,.97);backdrop-filter:blur(12px);border-top:1px solid var(--line);
-padding:8px 4px calc(8px + env(safe-area-inset-bottom))}
-.bottom a{text-decoration:none;color:var(--text);text-align:center;font-size:19px}.bottom span{display:block;color:var(--muted);font-size:11px}
-@media(min-width:820px){.bottom{max-width:820px;margin:auto;border:1px solid var(--line);border-radius:22px 22px 0 0}.app{padding-left:20px;padding-right:20px}}
-</style>
+<link rel="stylesheet" href="styles.css">
 </head>
 <body>
 <div class="app">
 <header class="hero">
   <div>
-    <div class="brand">MY BRIEF · v0.3 PWA</div>
-    <h1>Доброе утро</h1>
-    <p class="muted">Тестовый выпуск · 8 июля 2026 · Europe/Vienna</p>
+    <div class="brand">MY BRIEF · v0.4</div>
+    <h1 id="greeting">Доброе утро</h1>
+    <p class="muted" id="issueLine">Загрузка выпуска...</p>
   </div>
   <button onclick="testNotify()">🔔</button>
 </header>
-
-<section class="card installBox" id="installBox">
-  <div class="row">
-    <div>
-      <h2>📱 Установить My Brief</h2>
-      <p class="muted">Можно добавить приложение на главный экран телефона.</p>
-    </div>
-    <button id="installBtn">Установить</button>
-  </div>
-</section>
 
 <section class="card highlight">
   <div class="row">
     <div>
       <h2>📊 Индекс насыщенности дня</h2>
-      <p><b style="color:var(--yellow)">🟠 Насыщенный день</b></p>
-      <p class="muted">Главное можно понять за 3 минуты. Полный выпуск — около 15 минут.</p>
+      <p><b id="dayIndex">Загрузка...</b></p>
+      <p class="muted" id="daySummary"></p>
     </div>
-    <span class="pill">Offline ready</span>
+    <span class="pill" id="importantCount">Beta</span>
   </div>
 </section>
 
@@ -78,6 +38,11 @@ padding:8px 4px calc(8px + env(safe-area-inset-bottom))}
     <button class="tab" onclick="setMode('short',this)">5 минут</button>
     <button class="tab" onclick="setMode('full',this)">Полный</button>
   </div>
+</section>
+
+<section class="card">
+  <h2>🥇 Главные события дня</h2>
+  <div id="topStories"></div>
 </section>
 
 <section class="card">
@@ -94,91 +59,30 @@ padding:8px 4px calc(8px + env(safe-area-inset-bottom))}
 
 <main id="content"></main>
 
+<section class="card">
+  <h2>📈 Что изменилось со вчера</h2>
+  <div id="changes"></div>
+</section>
+
 <section class="card" id="next">
-  <h2>🚀 Что нового в v0.3</h2>
-  <p>Добавлен PWA-режим: manifest, service worker, иконка, кеширование и возможность установки на главный экран.</p>
-  <p class="muted">Следующий шаг v0.4: отдельный файл с выпусками и архив.</p>
+  <h2>📅 Что ждать завтра</h2>
+  <div id="tomorrow"></div>
+</section>
+
+<section class="card">
+  <h2>🚀 Что нового в v0.4</h2>
+  <p>Теперь выпуск загружается из отдельного файла <b>data/briefing.json</b>. Это первый шаг к будущему автоматическому обновлению новостей без изменения интерфейса.</p>
 </section>
 </div>
 
 <nav class="bottom">
-  <a href="#content">📰<span>Brief</span></a>
+  <a href="#topStories">⭐<span>Главное</span></a>
   <a href="#az">🇦🇿<span>Азерб.</span></a>
   <a href="#ru">🇷🇺<span>Россия</span></a>
   <a href="#economy">💰<span>Экон.</span></a>
-  <a href="#next">🚀<span>Дальше</span></a>
+  <a href="#next">📅<span>Завтра</span></a>
 </nav>
 
-<script>
-const sections=[
-{id:"minute",title:"⭐ Главное за 1 минуту",badge:"быстро",items:[
-["🟥 Россия и Украина: взаимные удары","Главная тема дня — удары беспилотников по регионам РФ и ответные российские удары по объектам в Украине."],
-["🟨 Азербайджан: миграция и дипломатия","В фокусе — задержание около 4 900 иностранцев в рамках борьбы с незаконной миграцией и дипломатические контакты Баку."],
-["🟨 Топливо и экономика","В отдельных российских регионах сохраняются ограничения и напряженность с бензином."]
-]},
-{id:"az",title:"🇦🇿 Азербайджан",badge:"очень высокий приоритет",items:[
-["🟥 Задержаны около 4 900 нелегальных мигрантов","Государственная миграционная служба Азербайджана сообщила о задержании 4 852 иностранцев в первом полугодии 2026 года. Это касается контроля границ, рынка труда и внутренней безопасности."],
-["🟨 Алиев принял главу МИД Иордании","Президент Ильхам Алиев принял вице-премьера и министра иностранных дел Иордании. Это показывает продолжение дипломатических контактов Баку."],
-["🟨 Отношения с Европой","В азербайджанских СМИ заметны материалы о европейских структурах и Франции. Важно отделять факты от политической риторики."]
-]},
-{id:"ru",title:"🇷🇺 Россия",badge:"высокий приоритет",items:[
-["🟥 Атаки БПЛА по регионам РФ","Российские СМИ сообщают об атаках украинских беспилотников по нескольким регионам. Упоминались повреждения инфраструктуры."],
-["🟥 Удары по Киеву","Минобороны РФ заявило о групповом ударе по объектам ВПК в Киеве. Украинские СМИ сообщали о пожарах."],
-["🟨 Топливо в Крыму и Севастополе","Сообщалось об ограничениях на заправку и лимитах. Это важная бытовая и экономическая тема."]
-]},
-{id:"world",title:"🌍 Мир",badge:"очень высокий приоритет",items:[
-["🟨 Европейская безопасность","Обсуждения вокруг возможного изменения присутствия войск США в Европе могут повлиять на архитектуру безопасности региона."],
-["🟨 Прибалтика и русскоязычные","Тема русскоязычного населения в Прибалтике остается чувствительной политической темой."]
-]},
-{id:"economy",title:"💰 Экономика",badge:"очень высокий приоритет",items:[
-["🟨 Топливо как практическая экономическая тема","Ограничения и перебои с бензином напрямую влияют на поездки, цены, очереди и доступность транспорта."],
-["🟨 Энергетическая инфраструктура","Атаки на инфраструктуру имеют не только военное, но и экономическое значение."],
-["🟩 Азербайджан: миграция и рынок труда","Задержание нелегальных мигрантов связано с регулированием рынка труда."]
-]},
-{id:"incidents",title:"🚨 Происшествия",badge:"средний приоритет",items:[
-["🟨 Повреждены танкеры","Сообщалось о повреждении танкеров во время атаки БПЛА."],
-["🟨 Поиски детей в Туве","Продолжаются поиски двух пропавших девочек."]
-]},
-{id:"sport",title:"⚽ Спорт",badge:"средний приоритет",items:[
-["🟩 Спорт сегодня не главный","В этом выпуске спортивная повестка уступает политике, безопасности и экономике."]
-]}
-];
-
-let mode="minute";
-function render(){
- const c=document.getElementById("content"); c.innerHTML="";
- const max=mode==="minute"?1:mode==="short"?2:99;
- const allowed=mode==="minute"?["minute","az","ru","economy"]:sections.map(s=>s.id);
- sections.filter(s=>allowed.includes(s.id)).forEach(s=>{
-  const card=document.createElement("section"); card.className="card"; card.id=s.id;
-  card.innerHTML=`<div class="row"><h2>${s.title}</h2><span class="pill">${s.badge}</span></div>`+
-  s.items.slice(0,max).map(i=>`<article class="news"><div class="newsTitle">${i[0]}</div><div class="newsText">${i[1]}</div><div class="meta">Тестовый выпуск v0.3</div></article>`).join("");
-  c.appendChild(card);
- });
-}
-function setMode(m,btn){mode=m;document.querySelectorAll(".tab").forEach(b=>b.classList.remove("active"));btn.classList.add("active");render();}
-async function testNotify(){
- if(!("Notification" in window)){alert("Уведомления не поддерживаются этим браузером.");return;}
- const p=await Notification.requestPermission();
- if(p==="granted") new Notification("My Brief v0.3",{body:"Тестовое уведомление включено."});
-}
-
-let deferredPrompt=null;
-window.addEventListener("beforeinstallprompt",(e)=>{
- e.preventDefault();
- deferredPrompt=e;
- document.getElementById("installBox").classList.add("show");
-});
-document.getElementById("installBtn").addEventListener("click",async()=>{
- if(!deferredPrompt){return;}
- deferredPrompt.prompt();
- await deferredPrompt.userChoice;
- deferredPrompt=null;
- document.getElementById("installBox").classList.remove("show");
-});
-
-if("serviceWorker" in navigator){navigator.serviceWorker.register("service-worker.js");}
-render();
-</script>
+<script src="app.js"></script>
 </body>
 </html>
