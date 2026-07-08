@@ -3,7 +3,10 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
-<title>My Brief v0.2</title>
+<title>My Brief v0.3</title>
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#0f172a">
+<link rel="icon" href="icon.svg">
 <style>
 :root{
   --bg:#07111f;--card:#111827;--card2:#162033;--text:#f8fafc;--muted:#a8b3c7;
@@ -18,9 +21,7 @@ font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;line-height
 .brand{font-size:12px;letter-spacing:.08em;color:var(--blue);font-weight:800}
 h1{font-size:34px;margin:6px 0 6px;line-height:1.05}
 h2{font-size:20px;margin:0 0 12px}
-h3{font-size:17px;margin:0 0 6px}
-p{margin:0 0 8px}
-.muted{color:var(--muted);font-size:14px}
+p{margin:0 0 8px}.muted{color:var(--muted);font-size:14px}
 .card{background:rgba(17,24,39,.94);border:1px solid var(--line);border-radius:24px;padding:16px;margin:12px 0;box-shadow:0 14px 30px rgba(0,0,0,.2)}
 .highlight{background:linear-gradient(135deg,rgba(96,165,250,.2),rgba(17,24,39,.94))}
 .row{display:flex;justify-content:space-between;gap:10px;align-items:center}
@@ -29,9 +30,8 @@ button{border:1px solid var(--line);background:var(--card2);color:var(--text);bo
 .tabs{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}.tab.active{background:var(--blue);color:#06101d;border-color:transparent}
 .quick{display:grid;grid-template-columns:1fr 1fr;gap:9px}.quick a{text-decoration:none;color:var(--text);background:#0f172a;border:1px solid var(--line);border-radius:16px;padding:12px;font-weight:700}
 .news{border-top:1px solid var(--line);padding-top:14px;margin-top:14px}.news:first-of-type{border-top:0;padding-top:0}
-.newsTitle{font-weight:850;margin-bottom:6px;font-size:16px}
-.newsText{color:#dbe4f0}.meta{color:var(--muted);font-size:13px;margin-top:8px}
-.red{color:var(--red)}.yellow{color:var(--yellow)}.green{color:var(--green)}
+.newsTitle{font-weight:850;margin-bottom:6px;font-size:16px}.newsText{color:#dbe4f0}.meta{color:var(--muted);font-size:13px;margin-top:8px}
+.installBox{display:none}.installBox.show{display:block}
 .bottom{position:fixed;left:0;right:0;bottom:0;display:grid;grid-template-columns:repeat(5,1fr);
 background:rgba(7,17,31,.97);backdrop-filter:blur(12px);border-top:1px solid var(--line);
 padding:8px 4px calc(8px + env(safe-area-inset-bottom))}
@@ -41,54 +41,64 @@ padding:8px 4px calc(8px + env(safe-area-inset-bottom))}
 </head>
 <body>
 <div class="app">
-  <header class="hero">
+<header class="hero">
+  <div>
+    <div class="brand">MY BRIEF · v0.3 PWA</div>
+    <h1>Доброе утро</h1>
+    <p class="muted">Тестовый выпуск · 8 июля 2026 · Europe/Vienna</p>
+  </div>
+  <button onclick="testNotify()">🔔</button>
+</header>
+
+<section class="card installBox" id="installBox">
+  <div class="row">
     <div>
-      <div class="brand">MY BRIEF · v0.2</div>
-      <h1>Доброе утро</h1>
-      <p class="muted">Тестовый выпуск · 8 июля 2026 · Europe/Vienna</p>
+      <h2>📱 Установить My Brief</h2>
+      <p class="muted">Можно добавить приложение на главный экран телефона.</p>
     </div>
-    <button onclick="testNotify()">🔔</button>
-  </header>
+    <button id="installBtn">Установить</button>
+  </div>
+</section>
 
-  <section class="card highlight">
-    <div class="row">
-      <div>
-        <h2>📊 Индекс насыщенности дня</h2>
-        <p><b class="yellow">🟠 Насыщенный день</b></p>
-        <p class="muted">Главное можно понять за 3 минуты. Полный выпуск — около 15 минут.</p>
-      </div>
-      <span class="pill">Beta</span>
+<section class="card highlight">
+  <div class="row">
+    <div>
+      <h2>📊 Индекс насыщенности дня</h2>
+      <p><b style="color:var(--yellow)">🟠 Насыщенный день</b></p>
+      <p class="muted">Главное можно понять за 3 минуты. Полный выпуск — около 15 минут.</p>
     </div>
-  </section>
+    <span class="pill">Offline ready</span>
+  </div>
+</section>
 
-  <section class="card">
-    <h2>⚡ Режим чтения</h2>
-    <div class="tabs">
-      <button class="tab active" onclick="setMode('minute',this)">1 минута</button>
-      <button class="tab" onclick="setMode('short',this)">5 минут</button>
-      <button class="tab" onclick="setMode('full',this)">Полный</button>
-    </div>
-  </section>
+<section class="card">
+  <h2>⚡ Режим чтения</h2>
+  <div class="tabs">
+    <button class="tab active" onclick="setMode('minute',this)">1 минута</button>
+    <button class="tab" onclick="setMode('short',this)">5 минут</button>
+    <button class="tab" onclick="setMode('full',this)">Полный</button>
+  </div>
+</section>
 
-  <section class="card">
-    <h2>🧭 Разделы</h2>
-    <div class="quick">
-      <a href="#az">🇦🇿 Азербайджан</a>
-      <a href="#ru">🇷🇺 Россия</a>
-      <a href="#world">🌍 Мир</a>
-      <a href="#economy">💰 Экономика</a>
-      <a href="#incidents">🚨 Происшествия</a>
-      <a href="#sport">⚽ Спорт</a>
-    </div>
-  </section>
+<section class="card">
+  <h2>🧭 Разделы</h2>
+  <div class="quick">
+    <a href="#az">🇦🇿 Азербайджан</a>
+    <a href="#ru">🇷🇺 Россия</a>
+    <a href="#world">🌍 Мир</a>
+    <a href="#economy">💰 Экономика</a>
+    <a href="#incidents">🚨 Происшествия</a>
+    <a href="#sport">⚽ Спорт</a>
+  </div>
+</section>
 
-  <main id="content"></main>
+<main id="content"></main>
 
-  <section class="card" id="next">
-    <h2>🚀 Что нового в v0.2</h2>
-    <p>Добавлены разделы, нижнее меню, карточки новостей, режимы чтения, индикаторы важности и более современный мобильный дизайн.</p>
-    <p class="muted">Следующий шаг v0.3: обновление выпуска через отдельный JSON и архив.</p>
-  </section>
+<section class="card" id="next">
+  <h2>🚀 Что нового в v0.3</h2>
+  <p>Добавлен PWA-режим: manifest, service worker, иконка, кеширование и возможность установки на главный экран.</p>
+  <p class="muted">Следующий шаг v0.4: отдельный файл с выпусками и архив.</p>
+</section>
 </div>
 
 <nav class="bottom">
@@ -102,35 +112,35 @@ padding:8px 4px calc(8px + env(safe-area-inset-bottom))}
 <script>
 const sections=[
 {id:"minute",title:"⭐ Главное за 1 минуту",badge:"быстро",items:[
-["🟥 Россия и Украина: взаимные удары","Главная тема дня — удары беспилотников по регионам РФ и ответные российские удары по объектам в Украине. Это влияет на безопасность, инфраструктуру и информационную повестку."],
+["🟥 Россия и Украина: взаимные удары","Главная тема дня — удары беспилотников по регионам РФ и ответные российские удары по объектам в Украине."],
 ["🟨 Азербайджан: миграция и дипломатия","В фокусе — задержание около 4 900 иностранцев в рамках борьбы с незаконной миграцией и дипломатические контакты Баку."],
-["🟨 Топливо и экономика","В отдельных российских регионах сохраняются ограничения и напряженность с бензином. Это практическая тема, влияющая на повседневную жизнь."]
+["🟨 Топливо и экономика","В отдельных российских регионах сохраняются ограничения и напряженность с бензином."]
 ]},
 {id:"az",title:"🇦🇿 Азербайджан",badge:"очень высокий приоритет",items:[
 ["🟥 Задержаны около 4 900 нелегальных мигрантов","Государственная миграционная служба Азербайджана сообщила о задержании 4 852 иностранцев в первом полугодии 2026 года. Это касается контроля границ, рынка труда и внутренней безопасности."],
-["🟨 Алиев принял главу МИД Иордании","Президент Ильхам Алиев принял вице-премьера и министра иностранных дел Иордании. Это показывает продолжение дипломатических контактов Баку со странами Ближнего Востока."],
-["🟨 Отношения с Европой","В азербайджанских СМИ заметны материалы о европейских структурах и Франции. Важно отделять факты от политической риторики и аналитики."]
+["🟨 Алиев принял главу МИД Иордании","Президент Ильхам Алиев принял вице-премьера и министра иностранных дел Иордании. Это показывает продолжение дипломатических контактов Баку."],
+["🟨 Отношения с Европой","В азербайджанских СМИ заметны материалы о европейских структурах и Франции. Важно отделять факты от политической риторики."]
 ]},
 {id:"ru",title:"🇷🇺 Россия",badge:"высокий приоритет",items:[
-["🟥 Атаки БПЛА по регионам РФ","Российские СМИ сообщают об атаках украинских беспилотников по нескольким регионам. Упоминались повреждения инфраструктуры и перебои в отдельных районах."],
-["🟥 Удары по Киеву","Минобороны РФ заявило о групповом ударе по объектам ВПК в Киеве. Украинские СМИ сообщали о пожарах в разных районах столицы."],
-["🟨 Топливо в Крыму и Севастополе","Сообщалось об ограничениях на заправку и лимитах. Это важная бытовая и экономическая тема для жителей региона."]
+["🟥 Атаки БПЛА по регионам РФ","Российские СМИ сообщают об атаках украинских беспилотников по нескольким регионам. Упоминались повреждения инфраструктуры."],
+["🟥 Удары по Киеву","Минобороны РФ заявило о групповом ударе по объектам ВПК в Киеве. Украинские СМИ сообщали о пожарах."],
+["🟨 Топливо в Крыму и Севастополе","Сообщалось об ограничениях на заправку и лимитах. Это важная бытовая и экономическая тема."]
 ]},
 {id:"world",title:"🌍 Мир",badge:"очень высокий приоритет",items:[
 ["🟨 Европейская безопасность","Обсуждения вокруг возможного изменения присутствия войск США в Европе могут повлиять на архитектуру безопасности региона."],
-["🟨 Прибалтика и русскоязычные","Тема русскоязычного населения в Прибалтике остается чувствительной политической темой для России и региона."]
+["🟨 Прибалтика и русскоязычные","Тема русскоязычного населения в Прибалтике остается чувствительной политической темой."]
 ]},
 {id:"economy",title:"💰 Экономика",badge:"очень высокий приоритет",items:[
 ["🟨 Топливо как практическая экономическая тема","Ограничения и перебои с бензином напрямую влияют на поездки, цены, очереди и доступность транспорта."],
-["🟨 Энергетическая инфраструктура","Атаки на инфраструктуру имеют не только военное, но и экономическое значение: такие объекты остаются уязвимыми."],
-["🟩 Азербайджан: миграция и рынок труда","Задержание нелегальных мигрантов связано не только с безопасностью, но и с регулированием рынка труда."]
+["🟨 Энергетическая инфраструктура","Атаки на инфраструктуру имеют не только военное, но и экономическое значение."],
+["🟩 Азербайджан: миграция и рынок труда","Задержание нелегальных мигрантов связано с регулированием рынка труда."]
 ]},
 {id:"incidents",title:"🚨 Происшествия",badge:"средний приоритет",items:[
-["🟨 Повреждены танкеры","Сообщалось о повреждении танкеров во время атаки БПЛА. Это важно из-за транспортной и энергетической инфраструктуры."],
-["🟨 Поиски детей в Туве","Продолжаются поиски двух пропавших девочек. Это сильное общественное происшествие, которое стоит отслеживать."]
+["🟨 Повреждены танкеры","Сообщалось о повреждении танкеров во время атаки БПЛА."],
+["🟨 Поиски детей в Туве","Продолжаются поиски двух пропавших девочек."]
 ]},
 {id:"sport",title:"⚽ Спорт",badge:"средний приоритет",items:[
-["🟩 Спорт сегодня не главный","В этом выпуске спортивная повестка уступает политике, безопасности и экономике. Раздел будет расширяться при важных матчах."]
+["🟩 Спорт сегодня не главный","В этом выпуске спортивная повестка уступает политике, безопасности и экономике."]
 ]}
 ];
 
@@ -142,7 +152,7 @@ function render(){
  sections.filter(s=>allowed.includes(s.id)).forEach(s=>{
   const card=document.createElement("section"); card.className="card"; card.id=s.id;
   card.innerHTML=`<div class="row"><h2>${s.title}</h2><span class="pill">${s.badge}</span></div>`+
-  s.items.slice(0,max).map(i=>`<article class="news"><div class="newsTitle">${i[0]}</div><div class="newsText">${i[1]}</div><div class="meta">Тестовый выпуск v0.2</div></article>`).join("");
+  s.items.slice(0,max).map(i=>`<article class="news"><div class="newsTitle">${i[0]}</div><div class="newsText">${i[1]}</div><div class="meta">Тестовый выпуск v0.3</div></article>`).join("");
   c.appendChild(card);
  });
 }
@@ -150,8 +160,24 @@ function setMode(m,btn){mode=m;document.querySelectorAll(".tab").forEach(b=>b.cl
 async function testNotify(){
  if(!("Notification" in window)){alert("Уведомления не поддерживаются этим браузером.");return;}
  const p=await Notification.requestPermission();
- if(p==="granted") new Notification("My Brief v0.2",{body:"Тестовое уведомление включено."});
+ if(p==="granted") new Notification("My Brief v0.3",{body:"Тестовое уведомление включено."});
 }
+
+let deferredPrompt=null;
+window.addEventListener("beforeinstallprompt",(e)=>{
+ e.preventDefault();
+ deferredPrompt=e;
+ document.getElementById("installBox").classList.add("show");
+});
+document.getElementById("installBtn").addEventListener("click",async()=>{
+ if(!deferredPrompt){return;}
+ deferredPrompt.prompt();
+ await deferredPrompt.userChoice;
+ deferredPrompt=null;
+ document.getElementById("installBox").classList.remove("show");
+});
+
+if("serviceWorker" in navigator){navigator.serviceWorker.register("service-worker.js");}
 render();
 </script>
 </body>
