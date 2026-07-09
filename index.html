@@ -1,29 +1,43 @@
-<!doctype html><html lang="ru"><head>
-<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<title>My Brief</title>
-<style>
-body{margin:0;font-family:Arial,sans-serif;background:#0b1220;color:#fff}
-.wrap{max-width:800px;margin:auto;padding:16px}
-h1{margin:0}
-.small{color:#b8c4d8}
-.card{background:#182235;border-radius:16px;padding:14px;margin:12px 0}
-h2{margin:0 0 10px}
-.item{padding:10px 0;border-top:1px solid #2d3a52}
-.item:first-child{border-top:none}
-.title{font-weight:bold}
-</style></head><body><div class="wrap">
-<h1>MY BRIEF</h1>
-<div class="small" id="g"></div>
-<script>
-const h=new Date().getHours();
-let t=h<5?"Доброй ночи":h<12?"Доброе утро":h<18?"Добрый день":"Добрый вечер";
-document.getElementById("g").innerText=t+" • "+new Date().toLocaleDateString("ru-RU",{weekday:"long",day:"numeric",month:"long",year:"numeric"});
-</script>
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="theme-color" content="#0f172a">
+  <title>My Brief</title>
+  <link rel="manifest" href="manifest.json">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <main class="app">
+    <header class="hero">
+      <div>
+        <div class="brand">MY BRIEF</div>
+        <h1 id="greeting">Добрый день</h1>
+        <div class="muted" id="dateLine"></div>
+        <div class="updated" id="updatedLine">Последнее обновление: —</div>
+      </div>
+      <button class="iconButton" onclick="testNotify()" aria-label="Проверить уведомления">🔔</button>
+    </header>
 
-<div class="card"><h2>⭐ Главное сегодня</h2>
-<div class="item"><div class="title">Россия и Украина: взаимные удары</div><div>Продолжаются сообщения об атаках беспилотников и ударах по инфраструктуре.</div></div>
-<div class="item"><div class="title">США и Иран</div><div>Сохраняется напряжённость вокруг Ближнего Востока.</div></div>
-<div class="item"><div class="title">Цена нефти</div><div>Рынки внимательно следят за геополитикой и стоимостью нефти.</div></div>
-</div>
+    <section class="card important">
+      <h2>⭐ Главное сегодня</h2>
+      <div id="topStories" class="newsList"></div>
+    </section>
 
-<div class="card"><h2>🇦🇿 Азербайджан</h2><div class="item">Мирный договор с Арменией</div><div class="item">Зангезурский коридор</div><div class="item">Цена Azeri Light</div><div class="item">Туризм</div><div class="item">Кибербезопасность</div><div class="item">AZAL</div><div class="item">Экономика</div><div class="item">Транспорт</div><div class="item">Образование</div><div class="item">Спорт</div></div><div class="card"><h2>🌍 Мир</h2><div class="item">США и Иран</div><div class="item">НАТО</div><div class="item">Израиль</div><div class="item">Сирия</div><div class="item">Европа</div><div class="item">Китай</div><div class="item">Климат</div><div class="item">Энергетика</div><div class="item">Торговля</div><div class="item">Безопасность</div></div><div class="card"><h2>🇷🇺 Россия</h2><div class="item">БПЛА</div><div class="item">Инфраструктура</div><div class="item">Топливо</div><div class="item">Экономика</div><div class="item">Транспорт</div><div class="item">Регионы</div><div class="item">Энергетика</div><div class="item">Армия</div><div class="item">Наука</div><div class="item">Спорт</div></div><div class="card"><h2>💰 Экономика</h2><div class="item">МВФ</div><div class="item">Нефть</div><div class="item">Газ</div><div class="item">Инфляция</div><div class="item">Рынки</div><div class="item">Логистика</div><div class="item">Туризм</div><div class="item">AI</div><div class="item">Труд</div><div class="item">Валюты</div></div><div class="card"><h2>🤖 AI</h2><div class="item">OpenAI</div><div class="item">Microsoft</div><div class="item">Google</div><div class="item">Образование</div><div class="item">Медицина</div><div class="item">Кибербезопасность</div><div class="item">Поиск</div><div class="item">Роботы</div><div class="item">Регулирование</div><div class="item">Стартапы</div></div><div class="card"><h2>⚽ Спорт</h2><div class="item">ЧМ-2026</div><div class="item">Месси</div><div class="item">Аргентина</div><div class="item">Трансферы</div><div class="item">Формула-1</div><div class="item">Теннис</div><div class="item">UFC</div><div class="item">Баскетбол</div><div class="item">Шахматы</div><div class="item">Азербайджанский футбол</div></div></div></body></html>
+    <nav class="card quick" id="quick" aria-label="Разделы"></nav>
+
+    <div id="sections"></div>
+  </main>
+
+  <nav class="bottom" aria-label="Нижнее меню">
+    <a href="#top"><b>🏠</b><span>Главная</span></a>
+    <a href="#az"><b>🇦🇿</b><span>Азербайджан</span></a>
+    <a href="#ru"><b>🇷🇺</b><span>Россия</span></a>
+    <a href="#world"><b>🌍</b><span>Мир</span></a>
+    <a href="#ai"><b>🤖</b><span>AI</span></a>
+  </nav>
+
+  <script src="app.js"></script>
+</body>
+</html>
