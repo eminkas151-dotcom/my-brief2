@@ -1,1 +1,3 @@
-v0.4.1: briefing.json moved to project root.
+# My Brief
+
+Рабочая версия приложения без старой тестовой заглушки.
