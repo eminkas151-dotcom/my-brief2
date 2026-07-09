@@ -1,0 +1,58 @@
+import { writeFile } from 'node:fs/promises';
+
+const SECTIONS = [
+  { id:'az', title:'🇦🇿 Азербайджан', limit:20, feeds:[
+    ['Trend','https://www.trend.az/rss/'],['Report','https://report.az/ru/rss/'],['Oxu.az','https://ru.oxu.az/rss.xml'],['Day.az','https://news.day.az/rss/all.rss'],['AZERTAC','https://azertag.az/ru/rss']
+  ]},
+  { id:'ru', title:'🇷🇺 Россия', limit:20, feeds:[
+    ['KP','https://www.kp.ru/rss/allsections.xml'],['AIF','https://aif.ru/rss/all.php'],['РИА Новости','https://ria.ru/export/rss2/archive/index.xml'],['РБК','https://rssexport.rbc.ru/rbcnews/news/30/full.rss'],['Коммерсант','https://www.kommersant.ru/RSS/news.xml']
+  ]},
+  { id:'world', title:'🌍 Мир', limit:20, feeds:[
+    ['BBC Russian','https://feeds.bbci.co.uk/russian/rss.xml'],['Reuters','https://feeds.reuters.com/reuters/worldNews'],['AP','https://apnews.com/hub/ap-top-news?output=rss'],['РБК Мир','https://rssexport.rbc.ru/rbcnews/world/30/full.rss']
+  ]},
+  { id:'economy', title:'💰 Экономика', limit:15, feeds:[
+    ['РБК Экономика','https://rssexport.rbc.ru/rbcnews/economics/30/full.rss'],['Коммерсант Бизнес','https://www.kommersant.ru/RSS/section-business.xml'],['Reuters Business','https://feeds.reuters.com/reuters/businessNews']
+  ]},
+  { id:'incidents', title:'🚨 Происшествия', limit:15, feeds:[
+    ['KP Происшествия','https://www.kp.ru/rss/incidents.xml'],['AIF Происшествия','https://aif.ru/rss/incidents.php'],['РБК Общество','https://rssexport.rbc.ru/rbcnews/society/30/full.rss']
+  ]},
+  { id:'science', title:'🔬 Наука', limit:15, feeds:[
+    ['N+1','https://nplus1.ru/rss'],['ScienceDaily','https://www.sciencedaily.com/rss/top/science.xml'],['NASA','https://www.nasa.gov/news-release/feed/']
+  ]},
+  { id:'weather', title:'🌦 Погода', limit:10, feeds:[
+    ['Новости погоды','https://www.gismeteo.ru/news/rss/']
+  ]},
+  { id:'ai', title:'🤖 AI', limit:15, feeds:[
+    ['The Verge AI','https://www.theverge.com/rss/ai-artificial-intelligence/index.xml'],['TechCrunch AI','https://techcrunch.com/category/artificial-intelligence/feed/'],['OpenAI','https://openai.com/news/rss.xml']
+  ]},
+  { id:'tech', title:'📱 Технологии', limit:15, feeds:[
+    ['The Verge','https://www.theverge.com/rss/index.xml'],['TechCrunch','https://techcrunch.com/feed/'],['3DNews','https://3dnews.ru/news/rss/']
+  ]},
+  { id:'sport', title:'⚽ Спорт', limit:15, feeds:[
+    ['РИА Спорт','https://rsport.ria.ru/export/rss2/archive/index.xml'],['Чемпионат','https://www.championat.com/rss/news/football/'],['AP Sports','https://apnews.com/hub/sports?output=rss']
+  ]}
+];
+
+const fallbackText = {
+  az:'Свежие материалы из азербайджанских источников будут появляться здесь после очередного запуска обновления.',
+  ru:'Свежие материалы из российских источников будут появляться здесь после очередного запуска обновления.',
+  world:'Главные международные материалы будут появляться здесь после очередного запуска обновления.',
+  economy:'Экономические новости, рынки, нефть, валюты и бизнес будут собираться в этом разделе.',
+  incidents:'Происшествия, аварии, чрезвычайные ситуации и важные предупреждения будут собираться здесь.',
+  science:'Научные новости, исследования, космос и медицина будут собираться здесь.',
+  weather:'Погодные предупреждения и важные сообщения будут собираться здесь.',
+  ai:'Новости искусственного интеллекта, OpenAI, Google, Microsoft, стартапов и регулирования будут собираться здесь.',
+  tech:'Технологические новости, гаджеты, приложения и кибербезопасность будут собираться здесь.',
+  sport:'Футбол и другие спортивные новости будут собираться здесь.'
+};
+function strip(html=''){return String(html).replace(/<!\[CDATA\[/g,'').replace(/\]\]>/g,'').replace(/<[^>]+>/g,' ').replace(/&nbsp;/g,' ').replace(/&amp;/g,'&').replace(/&quot;/g,'"').replace(/&#39;/g,"'").replace(/\s+/g,' ').trim()}
+function tag(block,name){const m=block.match(new RegExp(`<${name}[^>]*>([\\s\\S]*?)<\\/${name}>`,'i'));return m?strip(m[1]):''}
+function link(block){const l=tag(block,'link');if(l)return l;const m=block.match(/<link[^>]+href=["']([^"']+)/i);return m?m[1]:''}
+function parse(xml,source){const blocks=[...xml.matchAll(/<item[\s\S]*?<\/item>|<entry[\s\S]*?<\/entry>/gi)].map(x=>x[0]);return blocks.map(b=>({title:tag(b,'title'),text:tag(b,'description')||tag(b,'summary')||tag(b,'content:encoded'),url:link(b),publishedAt:tag(b,'pubDate')||tag(b,'published')||tag(b,'updated'),source})).filter(x=>x.title)}
+function enrich(item){let text=item.text||'';if(text.length<110){text = `${item.title}. ${text || 'Подробности уточняются.'} Материал добавлен в ленту, чтобы быстро видеть главные события по разделу. Для полной версии откройте источник.`}if(text.length>520) text=text.slice(0,517)+'…';return {...item,text}}
+async function fetchFeed([source,url]){try{const controller=new AbortController();const t=setTimeout(()=>controller.abort(),15000);const r=await fetch(url,{signal:controller.signal,headers:{'user-agent':'MyBriefBot/1.0'}});clearTimeout(t);if(!r.ok) throw new Error(`${r.status}`);return parse(await r.text(),source)}catch(e){console.warn(`Не удалось загрузить ${source}: ${url} (${e.message})`);return []}}
+function unique(items){const seen=new Set();return items.filter(i=>{const key=(i.title||'').toLowerCase().replace(/[^а-яa-z0-9]+/gi,' ').trim();if(!key||seen.has(key))return false;seen.add(key);return true})}
+async function sectionData(s){const results=(await Promise.all(s.feeds.map(fetchFeed))).flat();let items=unique(results).map(enrich).slice(0,s.limit);if(!items.length){items=[{title:s.title.replace(/^[^\s]+\s*/,''),text:fallbackText[s.id],source:'My Brief',url:''}]};return {id:s.id,title:s.title,items}}
+const briefing={updatedAt:new Date().toISOString(),sections:await Promise.all(SECTIONS.map(sectionData))};
+await writeFile('briefing.json',JSON.stringify(briefing,null,2),'utf8');
+console.log(`briefing.json обновлен: ${briefing.sections.reduce((n,s)=>n+s.items.length,0)} новостей`);
