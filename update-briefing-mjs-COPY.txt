@@ -1,58 +1,256 @@
 import { writeFile } from 'node:fs/promises';
 
+const GOOGLE_BASE = 'https://news.google.com/rss/search?hl=ru&gl=RU&ceid=RU:ru&q=';
+const UA = 'Mozilla/5.0 (compatible; MyBrief/2.0; +https://github.com/)';
+
 const SECTIONS = [
-  { id:'az', title:'🇦🇿 Азербайджан', limit:20, feeds:[
-    ['Trend','https://www.trend.az/rss/'],['Report','https://report.az/ru/rss/'],['Oxu.az','https://ru.oxu.az/rss.xml'],['Day.az','https://news.day.az/rss/all.rss'],['AZERTAC','https://azertag.az/ru/rss']
-  ]},
-  { id:'ru', title:'🇷🇺 Россия', limit:20, feeds:[
-    ['KP','https://www.kp.ru/rss/allsections.xml'],['AIF','https://aif.ru/rss/all.php'],['РИА Новости','https://ria.ru/export/rss2/archive/index.xml'],['РБК','https://rssexport.rbc.ru/rbcnews/news/30/full.rss'],['Коммерсант','https://www.kommersant.ru/RSS/news.xml']
-  ]},
-  { id:'world', title:'🌍 Мир', limit:20, feeds:[
-    ['BBC Russian','https://feeds.bbci.co.uk/russian/rss.xml'],['Reuters','https://feeds.reuters.com/reuters/worldNews'],['AP','https://apnews.com/hub/ap-top-news?output=rss'],['РБК Мир','https://rssexport.rbc.ru/rbcnews/world/30/full.rss']
-  ]},
-  { id:'economy', title:'💰 Экономика', limit:15, feeds:[
-    ['РБК Экономика','https://rssexport.rbc.ru/rbcnews/economics/30/full.rss'],['Коммерсант Бизнес','https://www.kommersant.ru/RSS/section-business.xml'],['Reuters Business','https://feeds.reuters.com/reuters/businessNews']
-  ]},
-  { id:'incidents', title:'🚨 Происшествия', limit:15, feeds:[
-    ['KP Происшествия','https://www.kp.ru/rss/incidents.xml'],['AIF Происшествия','https://aif.ru/rss/incidents.php'],['РБК Общество','https://rssexport.rbc.ru/rbcnews/society/30/full.rss']
-  ]},
-  { id:'science', title:'🔬 Наука', limit:15, feeds:[
-    ['N+1','https://nplus1.ru/rss'],['ScienceDaily','https://www.sciencedaily.com/rss/top/science.xml'],['NASA','https://www.nasa.gov/news-release/feed/']
-  ]},
-  { id:'weather', title:'🌦 Погода', limit:10, feeds:[
-    ['Новости погоды','https://www.gismeteo.ru/news/rss/']
-  ]},
-  { id:'ai', title:'🤖 AI', limit:15, feeds:[
-    ['The Verge AI','https://www.theverge.com/rss/ai-artificial-intelligence/index.xml'],['TechCrunch AI','https://techcrunch.com/category/artificial-intelligence/feed/'],['OpenAI','https://openai.com/news/rss.xml']
-  ]},
-  { id:'tech', title:'📱 Технологии', limit:15, feeds:[
-    ['The Verge','https://www.theverge.com/rss/index.xml'],['TechCrunch','https://techcrunch.com/feed/'],['3DNews','https://3dnews.ru/news/rss/']
-  ]},
-  { id:'sport', title:'⚽ Спорт', limit:15, feeds:[
-    ['РИА Спорт','https://rsport.ria.ru/export/rss2/archive/index.xml'],['Чемпионат','https://www.championat.com/rss/news/football/'],['AP Sports','https://apnews.com/hub/sports?output=rss']
-  ]}
+  {
+    id: 'az', title: '🇦🇿 Азербайджан', limit: 20,
+    feeds: [
+      ['Trend', 'https://www.trend.az/rss/'],
+      ['Report.az', 'https://report.az/ru/rss/'],
+      ['Oxu.az', 'https://ru.oxu.az/rss.xml'],
+      ['Day.az', 'https://news.day.az/rss/all.rss'],
+      ['AZERTAC', 'https://azertag.az/ru/rss'],
+      ['Google News', google('(Азербайджан OR Баку OR Алиев OR Карабах OR AZAL) when:1d')]
+    ]
+  },
+  {
+    id: 'ru', title: '🇷🇺 Россия', limit: 20,
+    feeds: [
+      ['РИА Новости', 'https://ria.ru/export/rss2/archive/index.xml'],
+      ['РБК', 'https://rssexport.rbc.ru/rbcnews/news/30/full.rss'],
+      ['Коммерсантъ', 'https://www.kommersant.ru/RSS/news.xml'],
+      ['KP.ru', 'https://www.kp.ru/rss/allsections.xml'],
+      ['AIF.ru', 'https://aif.ru/rss/all.php'],
+      ['Google News', google('(Россия OR Москва OR регионы РФ OR Госдума OR Кремль) when:1d')]
+    ]
+  },
+  {
+    id: 'world', title: '🌍 Мир', limit: 20,
+    feeds: [
+      ['BBC Russian', 'https://feeds.bbci.co.uk/russian/rss.xml'],
+      ['РБК Мир', 'https://rssexport.rbc.ru/rbcnews/world/30/full.rss'],
+      ['DW Russian', 'https://rss.dw.com/rdf/rss-ru-all'],
+      ['Google News', google('(США OR Европа OR Украина OR Ближний Восток OR Китай OR НАТО) when:1d')]
+    ]
+  },
+  {
+    id: 'economy', title: '💰 Экономика', limit: 15,
+    feeds: [
+      ['РБК Экономика', 'https://rssexport.rbc.ru/rbcnews/economics/30/full.rss'],
+      ['Коммерсантъ Бизнес', 'https://www.kommersant.ru/RSS/section-business.xml'],
+      ['Google News', google('(экономика OR нефть OR доллар OR евро OR рынки OR бизнес OR инфляция) when:1d')]
+    ]
+  },
+  {
+    id: 'incidents', title: '🚨 Происшествия', limit: 15,
+    feeds: [
+      ['РИА Новости', 'https://ria.ru/export/rss2/incidents/index.xml'],
+      ['РБК Общество', 'https://rssexport.rbc.ru/rbcnews/society/30/full.rss'],
+      ['Google News', google('(происшествие OR авария OR пожар OR ЧП OR задержали OR ДТП) when:1d')]
+    ]
+  },
+  {
+    id: 'science', title: '🔬 Наука', limit: 15,
+    feeds: [
+      ['N+1', 'https://nplus1.ru/rss'],
+      ['NASA', 'https://www.nasa.gov/news-release/feed/'],
+      ['Google News', google('(наука OR исследование OR ученые OR космос OR медицина OR NASA) when:7d')]
+    ]
+  },
+  {
+    id: 'weather', title: '🌦 Погода', limit: 10,
+    feeds: [
+      ['Google News', google('(погода OR шторм OR жара OR ливни OR снег OR предупреждение) when:1d')]
+    ]
+  },
+  {
+    id: 'ai', title: '🤖 AI', limit: 15,
+    feeds: [
+      ['OpenAI', 'https://openai.com/news/rss.xml'],
+      ['TechCrunch AI', 'https://techcrunch.com/category/artificial-intelligence/feed/'],
+      ['The Verge AI', 'https://www.theverge.com/rss/ai-artificial-intelligence/index.xml'],
+      ['Google News', google('(искусственный интеллект OR нейросеть OR OpenAI OR ChatGPT OR Google AI OR Microsoft AI) when:7d')]
+    ]
+  },
+  {
+    id: 'tech', title: '📱 Технологии', limit: 15,
+    feeds: [
+      ['3DNews', 'https://3dnews.ru/news/rss/'],
+      ['TechCrunch', 'https://techcrunch.com/feed/'],
+      ['The Verge', 'https://www.theverge.com/rss/index.xml'],
+      ['Google News', google('(технологии OR смартфон OR приложение OR кибербезопасность OR гаджеты) when:3d')]
+    ]
+  },
+  {
+    id: 'sport', title: '⚽ Спорт', limit: 15,
+    feeds: [
+      ['РИА Спорт', 'https://rsport.ria.ru/export/rss2/archive/index.xml'],
+      ['Чемпионат футбол', 'https://www.championat.com/rss/news/football/'],
+      ['Google News', google('(футбол OR спорт OR матч OR чемпионат OR сборная) when:1d')]
+    ]
+  }
 ];
 
-const fallbackText = {
-  az:'Свежие материалы из азербайджанских источников будут появляться здесь после очередного запуска обновления.',
-  ru:'Свежие материалы из российских источников будут появляться здесь после очередного запуска обновления.',
-  world:'Главные международные материалы будут появляться здесь после очередного запуска обновления.',
-  economy:'Экономические новости, рынки, нефть, валюты и бизнес будут собираться в этом разделе.',
-  incidents:'Происшествия, аварии, чрезвычайные ситуации и важные предупреждения будут собираться здесь.',
-  science:'Научные новости, исследования, космос и медицина будут собираться здесь.',
-  weather:'Погодные предупреждения и важные сообщения будут собираться здесь.',
-  ai:'Новости искусственного интеллекта, OpenAI, Google, Microsoft, стартапов и регулирования будут собираться здесь.',
-  tech:'Технологические новости, гаджеты, приложения и кибербезопасность будут собираться здесь.',
-  sport:'Футбол и другие спортивные новости будут собираться здесь.'
+function google(query) {
+  return GOOGLE_BASE + encodeURIComponent(query);
+}
+
+function decodeEntities(text = '') {
+  return String(text)
+    .replace(/<!\[CDATA\[/g, '')
+    .replace(/\]\]>/g, '')
+    .replace(/&nbsp;/g, ' ')
+    .replace(/&amp;/g, '&')
+    .replace(/&quot;/g, '"')
+    .replace(/&#39;/g, "'")
+    .replace(/&apos;/g, "'")
+    .replace(/&lt;/g, '<')
+    .replace(/&gt;/g, '>')
+    .replace(/&#(\d+);/g, (_, n) => String.fromCharCode(Number(n)))
+    .replace(/&#x([0-9a-f]+);/gi, (_, n) => String.fromCharCode(parseInt(n, 16)));
+}
+
+function strip(html = '') {
+  return decodeEntities(String(html))
+    .replace(/<script[\s\S]*?<\/script>/gi, ' ')
+    .replace(/<style[\s\S]*?<\/style>/gi, ' ')
+    .replace(/<[^>]+>/g, ' ')
+    .replace(/\s+/g, ' ')
+    .trim();
+}
+
+function getTag(block, name) {
+  const re = new RegExp(`<${name}(?:\\s[^>]*)?>([\\s\\S]*?)<\\/${name}>`, 'i');
+  const m = block.match(re);
+  return m ? strip(m[1]) : '';
+}
+
+function getLink(block) {
+  const normal = getTag(block, 'link');
+  if (normal) return normal;
+  const atom = block.match(/<link[^>]+href=["']([^"']+)["']/i);
+  return atom ? decodeEntities(atom[1]) : '';
+}
+
+function getDate(block) {
+  return getTag(block, 'pubDate') || getTag(block, 'published') || getTag(block, 'updated') || getTag(block, 'dc:date') || '';
+}
+
+function parseFeed(xml, source) {
+  const blocks = [...String(xml).matchAll(/<item[\s\S]*?<\/item>|<entry[\s\S]*?<\/entry>/gi)].map(x => x[0]);
+  return blocks.map(block => {
+    let title = getTag(block, 'title');
+    let text = getTag(block, 'description') || getTag(block, 'summary') || getTag(block, 'content:encoded') || getTag(block, 'content');
+    let url = getLink(block);
+    let publishedAt = getDate(block);
+
+    // Google News often appends source to the title. Keep source readable.
+    if (source === 'Google News' && title.includes(' - ')) {
+      const parts = title.split(' - ');
+      const possibleSource = parts.pop();
+      title = parts.join(' - ').trim() || title;
+      source = possibleSource || source;
+    }
+
+    return { title, text, url, publishedAt, source };
+  }).filter(x => x.title && x.url);
+}
+
+async function fetchFeed([source, url]) {
+  const controller = new AbortController();
+  const timer = setTimeout(() => controller.abort(), 20000);
+  try {
+    const res = await fetch(url, {
+      signal: controller.signal,
+      headers: { 'user-agent': UA, 'accept': 'application/rss+xml, application/xml, text/xml, */*' }
+    });
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    const xml = await res.text();
+    const items = parseFeed(xml, source);
+    console.log(`✓ ${source}: ${items.length}`);
+    return items;
+  } catch (e) {
+    console.log(`× ${source}: ${e.message}`);
+    return [];
+  } finally {
+    clearTimeout(timer);
+  }
+}
+
+function normalizeKey(title) {
+  return String(title || '')
+    .toLowerCase()
+    .replace(/[^а-яёa-z0-9]+/gi, ' ')
+    .replace(/\b(в|на|и|о|об|по|для|с|со|the|a|an|of|to|in|on)\b/g, ' ')
+    .replace(/\s+/g, ' ')
+    .trim()
+    .slice(0, 120);
+}
+
+function enrich(item, sectionTitle) {
+  let text = item.text || '';
+  text = text.replace(/^Источник:\s*/i, '').trim();
+
+  if (text.length < 120) {
+    text = `${item.title}. Материал опубликован источником «${item.source}» и добавлен в раздел «${sectionTitle.replace(/^\S+\s*/, '')}». Подробности, контекст и возможные обновления лучше смотреть в полной версии по ссылке на источник.`;
+  }
+
+  if (text.length > 650) text = text.slice(0, 647).trim() + '…';
+
+  let dateValue = Date.parse(item.publishedAt || '');
+  if (Number.isNaN(dateValue)) dateValue = Date.now();
+
+  return {
+    title: item.title.trim(),
+    text,
+    source: item.source,
+    url: item.url,
+    publishedAt: new Date(dateValue).toISOString()
+  };
+}
+
+function unique(items) {
+  const seen = new Set();
+  const result = [];
+  for (const item of items) {
+    const key = normalizeKey(item.title);
+    if (!key || seen.has(key)) continue;
+    seen.add(key);
+    result.push(item);
+  }
+  return result;
+}
+
+async function buildSection(section) {
+  const raw = (await Promise.all(section.feeds.map(fetchFeed))).flat();
+  const items = unique(raw)
+    .map(item => enrich(item, section.title))
+    .sort((a, b) => Date.parse(b.publishedAt) - Date.parse(a.publishedAt))
+    .slice(0, section.limit);
+
+  console.log(`${section.title}: ${items.length} новостей`);
+
+  if (!items.length) {
+    items.push({
+      title: section.title.replace(/^\S+\s*/, ''),
+      text: 'В этом разделе пока не удалось получить свежие материалы из RSS. Следующий запуск попробует снова. Сайт и автоматическое обновление при этом работают.',
+      source: 'My Brief',
+      url: '',
+      publishedAt: new Date().toISOString()
+    });
+  }
+
+  return { id: section.id, title: section.title, items };
+}
+
+const sections = await Promise.all(SECTIONS.map(buildSection));
+
+const briefing = {
+  updatedAt: new Date().toISOString(),
+  sections
 };
-function strip(html=''){return String(html).replace(/<!\[CDATA\[/g,'').replace(/\]\]>/g,'').replace(/<[^>]+>/g,' ').replace(/&nbsp;/g,' ').replace(/&amp;/g,'&').replace(/&quot;/g,'"').replace(/&#39;/g,"'").replace(/\s+/g,' ').trim()}
-function tag(block,name){const m=block.match(new RegExp(`<${name}[^>]*>([\\s\\S]*?)<\\/${name}>`,'i'));return m?strip(m[1]):''}
-function link(block){const l=tag(block,'link');if(l)return l;const m=block.match(/<link[^>]+href=["']([^"']+)/i);return m?m[1]:''}
-function parse(xml,source){const blocks=[...xml.matchAll(/<item[\s\S]*?<\/item>|<entry[\s\S]*?<\/entry>/gi)].map(x=>x[0]);return blocks.map(b=>({title:tag(b,'title'),text:tag(b,'description')||tag(b,'summary')||tag(b,'content:encoded'),url:link(b),publishedAt:tag(b,'pubDate')||tag(b,'published')||tag(b,'updated'),source})).filter(x=>x.title)}
-function enrich(item){let text=item.text||'';if(text.length<110){text = `${item.title}. ${text || 'Подробности уточняются.'} Материал добавлен в ленту, чтобы быстро видеть главные события по разделу. Для полной версии откройте источник.`}if(text.length>520) text=text.slice(0,517)+'…';return {...item,text}}
-async function fetchFeed([source,url]){try{const controller=new AbortController();const t=setTimeout(()=>controller.abort(),15000);const r=await fetch(url,{signal:controller.signal,headers:{'user-agent':'MyBriefBot/1.0'}});clearTimeout(t);if(!r.ok) throw new Error(`${r.status}`);return parse(await r.text(),source)}catch(e){console.warn(`Не удалось загрузить ${source}: ${url} (${e.message})`);return []}}
-function unique(items){const seen=new Set();return items.filter(i=>{const key=(i.title||'').toLowerCase().replace(/[^а-яa-z0-9]+/gi,' ').trim();if(!key||seen.has(key))return false;seen.add(key);return true})}
-async function sectionData(s){const results=(await Promise.all(s.feeds.map(fetchFeed))).flat();let items=unique(results).map(enrich).slice(0,s.limit);if(!items.length){items=[{title:s.title.replace(/^[^\s]+\s*/,''),text:fallbackText[s.id],source:'My Brief',url:''}]};return {id:s.id,title:s.title,items}}
-const briefing={updatedAt:new Date().toISOString(),sections:await Promise.all(SECTIONS.map(sectionData))};
-await writeFile('briefing.json',JSON.stringify(briefing,null,2),'utf8');
-console.log(`briefing.json обновлен: ${briefing.sections.reduce((n,s)=>n+s.items.length,0)} новостей`);
+
+await writeFile('briefing.json', JSON.stringify(briefing, null, 2), 'utf8');
+console.log(`Готово: briefing.json обновлен, всего новостей: ${sections.reduce((sum, s) => sum + s.items.length, 0)}`);
